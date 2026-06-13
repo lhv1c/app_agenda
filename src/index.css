@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=Spectral:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+/* ============================================================================
+   "Prancha" — identidade da Loja Maçônica Ciência e Justiça (Marialva).
+   Pergaminho + granada + ouro velho. Tipografia de diploma gravado.
+   Assinatura: moldura de filete duplo (placa) + faixa de piso mosaico.
+   ========================================================================== */
+
+@theme {
+  --color-pergaminho: #f1e9d8;
+  --color-pergaminho-2: #fbf6ea;
+  --color-granada: #6e1322;
+  --color-granada-dark: #54101b;
+  --color-ouro: #9a7b33;
+  --color-ouro-claro: #c2a05a;
+  --color-tinta: #241f1a;
+  --color-tinta-mid: #6a6253;
+  --color-linha: #d8cbae;
+
+  --font-display: 'Cormorant', Georgia, serif;
+  --font-body: 'Spectral', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-prancha: 6px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-pergaminho);
+  color: var(--color-tinta);
+  /* Textura de pergaminho: grão sutil sobre o fundo creme. */
+  background-image:
+    radial-gradient(rgb(36 31 26 / 0.025) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* ----------------------------------------------------------------------------
+   Eyebrow / rótulo gravado — usado em pequenas legendas e dados (registro).
+   -------------------------------------------------------------------------- */
+.eyebrow {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.6875rem;
+  color: var(--color-tinta-mid);
+}
+
+/* ----------------------------------------------------------------------------
+   Placa — superfície emoldurada por filete duplo dourado (cara de diploma).
+   -------------------------------------------------------------------------- */
+.plaque {
+  position: relative;
+  background-color: var(--color-pergaminho-2);
+  border: 1px solid var(--color-linha);
+  border-radius: var(--radius-prancha);
+  box-shadow: 0 1px 2px rgb(36 31 26 / 0.05);
+}
+.plaque::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid color-mix(in srgb, var(--color-ouro) 28%, transparent);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------------------------------
+   Piso mosaico — faixa xadrez fina. Chão da Loja, usado com parcimônia.
+   -------------------------------------------------------------------------- */
+.mosaico {
+  height: 0.625rem;
+  background-color: var(--color-pergaminho-2);
+  background-image:
+    conic-gradient(
+      var(--color-tinta) 25%,
+      transparent 0 50%,
+      var(--color-tinta) 0 75%,
+      transparent 0
+    );
+  background-size: 0.625rem 0.625rem;
+}
+
+/* Filete simples horizontal com losango central (divisor de seção). */
+.rule-ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-ouro);
+}
+.rule-ornament::before,
+.rule-ornament::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--color-ouro) 55%, transparent),
+    transparent
+  );
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----------------------------------------------------------------------------
+   react-day-picker — calendário com a identidade da Loja.
+   -------------------------------------------------------------------------- */
+.rdp-root {
+  --rdp-accent-color: var(--color-granada);
+  --rdp-accent-background-color: var(--color-granada);
+  --rdp-day-width: 2.75rem;
+  --rdp-day-height: 2.75rem;
+  --rdp-day_button-width: 2.5rem;
+  --rdp-day_button-height: 2.5rem;
+  --rdp-day_button-border-radius: 9999px;
+  --rdp-selected-border: none;
+  font-family: var(--font-body);
+  margin: 0;
+}
+.rdp-month_caption {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: var(--color-granada);
+  text-transform: capitalize;
+}
+.rdp-weekday {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.625rem;
+  color: var(--color-tinta-mid);
+  font-weight: 500;
+}
+.rdp-day_button {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.rdp-root .rdp-chevron {
+  fill: var(--color-granada) !important;
+}
+.rdp-root .rdp-button_previous:hover .rdp-chevron,
+.rdp-root .rdp-button_next:hover .rdp-chevron {
+  fill: var(--color-ouro) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
