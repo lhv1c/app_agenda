@@ -3,7 +3,7 @@ import { useAuth } from '../auth/context'
 import { cancelReservation, fetchMyReservations } from '../api/reservations'
 import { formatShort, fromISODate } from '../lib/dates'
 import { StatusBadge } from '../components/StatusBadge'
-import { Button, Card, PageHeader, Spinner } from '../components/ui'
+import { Button, Card, EmptyState, PageHeader, Spinner } from '../components/ui'
 import type { Reservation } from '../types'
 
 export function MyReservationsPage() {
@@ -27,7 +27,7 @@ export function MyReservationsPage() {
   const reservations = data ?? []
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader eyebrow="Registro pessoal" title="Minhas reservas" />
 
       {isLoading ? (
@@ -35,11 +35,9 @@ export function MyReservationsPage() {
           <Spinner className="size-7" />
         </div>
       ) : reservations.length === 0 ? (
-        <Card>
-          <p className="text-center font-body text-sm text-tinta-mid">
-            Você ainda não tem reservas. Escolha uma data no calendário.
-          </p>
-        </Card>
+        <EmptyState hint="Escolha uma data no calendário">
+          Você ainda não tem reservas.
+        </EmptyState>
       ) : (
         <ul className="space-y-3">
           {reservations.map((r) => (
@@ -71,8 +69,8 @@ function ReservationItem({
     reservation.status === 'pendente' || reservation.status === 'confirmada'
   return (
     <Card className="flex items-center gap-4">
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="font-display text-xl capitalize text-granada">
             {formatShort(fromISODate(reservation.data))}
           </span>
@@ -90,7 +88,7 @@ function ReservationItem({
         )}
       </div>
       {canCancel && (
-        <Button variant="outline" onClick={onCancel} loading={cancelling}>
+        <Button variant="outline" onClick={onCancel} loading={cancelling} className="shrink-0">
           Cancelar
         </Button>
       )}

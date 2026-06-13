@@ -29,7 +29,7 @@ export function Button({
 }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 font-mono text-xs font-medium uppercase tracking-[0.12em] transition-colors disabled:cursor-not-allowed ${variants[variant]} ${className}`}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 font-mono text-xs font-medium uppercase tracking-[0.12em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ouro focus-visible:ring-offset-2 focus-visible:ring-offset-pergaminho-2 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
       disabled={loading || props.disabled}
       {...props}
     >
@@ -117,6 +117,27 @@ export function Card({
   children: ReactNode
 }) {
   return <div className={`plaque p-5 ${className}`}>{children}</div>
+}
+
+/** Estado vazio padrão: losango dourado + mensagem + dica opcional. */
+export function EmptyState({
+  children,
+  hint,
+}: {
+  children: ReactNode
+  hint?: ReactNode
+}) {
+  return (
+    <Card>
+      <div className="flex flex-col items-center gap-2 py-6 text-center">
+        <span className="text-lg leading-none text-ouro" aria-hidden>
+          &#9670;
+        </span>
+        <p className="font-body text-sm text-tinta-mid">{children}</p>
+        {hint && <p className="eyebrow">{hint}</p>}
+      </div>
+    </Card>
+  )
 }
 
 /** Standardized page/section heading: eyebrow + title + optional description. */

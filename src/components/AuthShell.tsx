@@ -36,7 +36,7 @@ export function AuthShell({
 
         <div className="plaque overflow-hidden">
           <div className="mosaico" />
-          <div className="p-6">
+          <div className="p-5">
             <h2 className="mb-5 text-center font-display text-xl font-semibold text-tinta">
               {title}
             </h2>

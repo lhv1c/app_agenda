@@ -7,7 +7,7 @@ import {
   rejectReservation,
 } from '../../api/reservations'
 import { formatLong, formatShort, fromISODate } from '../../lib/dates'
-import { Button, Card, PageHeader, Rule, Spinner } from '../../components/ui'
+import { Button, Card, EmptyState, PageHeader, Rule, Spinner } from '../../components/ui'
 import type { ReservationWithProfile } from '../../types'
 
 export function AdminDashboardPage() {
@@ -70,11 +70,7 @@ export function AdminDashboardPage() {
             <Spinner className="size-7" />
           </div>
         ) : groups.length === 0 ? (
-          <Card>
-            <p className="text-center font-body text-sm text-tinta-mid">
-              Nenhum pedido pendente no momento.
-            </p>
-          </Card>
+          <EmptyState>Nenhum pedido pendente no momento.</EmptyState>
         ) : (
           <div className="space-y-7">
             {groups.map(([date, items]) => (
@@ -91,11 +87,11 @@ export function AdminDashboardPage() {
                 </div>
                 {items.map((r) => (
                   <Card key={r.id} className="flex items-center gap-4">
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1">
                       <p className="font-display text-lg text-granada">
                         {r.profile?.nome ?? 'Irmão'}
                       </p>
-                      <p className="eyebrow text-[9px]! tracking-[0.02em]! normal-case!">
+                      <p className="eyebrow text-[9px]! tracking-[0.02em]! normal-case! break-all">
                         {r.profile?.email}
                       </p>
                       {r.num_convidados != null && (
@@ -112,7 +108,7 @@ export function AdminDashboardPage() {
                         Solicitado em {formatShort(fromISODate(r.created_at))}
                       </p>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex shrink-0 flex-col gap-2">
                       <Button
                         variant="primary"
                         disabled={busy}
@@ -161,16 +157,12 @@ export function AdminDashboardPage() {
             <Spinner className="size-7" />
           </div>
         ) : confirmed.length === 0 ? (
-          <Card>
-            <p className="text-center font-body text-sm text-tinta-mid">
-              Nenhuma reserva confirmada.
-            </p>
-          </Card>
+          <EmptyState>Nenhuma reserva confirmada.</EmptyState>
         ) : (
           <ul className="space-y-3">
             {confirmed.map((r) => (
               <Card key={r.id} className="flex items-center gap-4">
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <span className="font-display text-xl capitalize text-granada">
                     {formatLong(fromISODate(r.data))}
                   </span>

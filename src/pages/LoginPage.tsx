@@ -50,21 +50,23 @@ export function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </Field>
-        <Field label="Senha">
+        <div className="space-y-1.5">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="eyebrow">Senha</span>
+            <Link
+              to="/recuperar-senha"
+              className="font-body text-xs text-tinta-mid underline decoration-ouro/60 underline-offset-2 hover:text-granada"
+            >
+              Esqueceu a senha?
+            </Link>
+          </div>
           <PasswordInput
+            aria-label="Senha"
             autoComplete="current-password"
             required
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
           />
-        </Field>
-        <div className="text-right">
-          <Link
-            to="/recuperar-senha"
-            className="font-body text-xs text-tinta-mid underline decoration-ouro/60 underline-offset-2 hover:text-granada"
-          >
-            Esqueceu a senha?
-          </Link>
         </div>
         <Button type="submit" loading={loading} className="w-full">
           Entrar
