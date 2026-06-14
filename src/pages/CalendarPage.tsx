@@ -11,6 +11,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../auth/context'
 import { fetchAvailability } from '../api/availability'
+import { fetchBlockedDates } from '../api/blockedDates'
 import { createReservation, fetchMyReservations } from '../api/reservations'
 import {
   formatLong,
@@ -30,7 +31,7 @@ import {
   Textarea,
   Input,
 } from '../components/ui'
-import type { DateAvailability, Reservation } from '../types'
+import type { BlockedDate, DateAvailability, Reservation } from '../types'
 
 export function CalendarPage() {
   const { session } = useAuth()
@@ -52,8 +53,14 @@ export function CalendarPage() {
     queryFn: () => fetchMyReservations(userId),
   })
 
+  const blockedQuery = useQuery({
+    queryKey: ['blocked', rangeFrom, rangeTo],
+    queryFn: () => fetchBlockedDates(rangeFrom, rangeTo),
+  })
+
   const availability = availabilityQuery.data ?? []
   const myReservations = myReservationsQuery.data ?? []
+  const blocked = blockedQuery.data ?? []
 
   const confirmedDates = useMemo(
     () =>
@@ -77,6 +84,11 @@ export function CalendarPage() {
     [myReservations],
   )
 
+  const blockedDates = useMemo(
+    () => blocked.map((b) => fromISODate(b.data)),
+    [blocked],
+  )
+
   const { min, max } = windowBounds()
 
   function isConfirmed(date: Date) {
@@ -92,6 +104,12 @@ export function CalendarPage() {
   function availabilityOn(date: Date): DateAvailability | undefined {
     return availability.find((a) => isSameDay(fromISODate(a.data), date))
   }
+  function isBlocked(date: Date) {
+    return blockedDates.some((d) => isSameDay(d, date))
+  }
+  function blockedOn(date: Date): BlockedDate | undefined {
+    return blocked.find((b) => isSameDay(fromISODate(b.data), date))
+  }
 
   const createMutation = useMutation({
     mutationFn: (input: {
@@ -106,7 +124,10 @@ export function CalendarPage() {
     },
   })
 
-  const loading = availabilityQuery.isLoading || myReservationsQuery.isLoading
+  const loading =
+    availabilityQuery.isLoading ||
+    myReservationsQuery.isLoading ||
+    blockedQuery.isLoading
 
   return (
     <div className="space-y-8">
@@ -131,11 +152,14 @@ export function CalendarPage() {
             onSelect={setSelected}
             startMonth={startOfDay(new Date())}
             endMonth={max}
-            disabled={(date) => !isBookable(date) || isConfirmed(date)}
+            disabled={(date) =>
+              !isBookable(date) || isConfirmed(date) || isBlocked(date)
+            }
             modifiers={{
               confirmada: confirmedDates,
               pendente: pendingDates,
               minha: myActiveDates,
+              bloqueada: blockedDates,
             }}
             modifiersClassNames={{
               confirmada:
@@ -145,6 +169,8 @@ export function CalendarPage() {
               minha: 'bg-ouro text-pergaminho-2 rounded-full',
               selected:
                 'outline outline-2 outline-offset-1 outline-granada rounded-full',
+              bloqueada:
+                'bg-linha text-tinta-mid/60 rounded-full line-through',
             }}
           />
         )}
@@ -158,6 +184,7 @@ export function CalendarPage() {
           existing={myReservationOn(selected)}
           availability={availabilityOn(selected)}
           bookable={isBookable(selected)}
+          blocked={blockedOn(selected)}
           submitting={createMutation.isPending}
           error={createMutation.isError}
           onSubmit={(values) =>
@@ -183,6 +210,7 @@ function Legend() {
     { className: 'bg-granada', label: 'Confirmada' },
     { className: 'ring-1 ring-inset ring-ouro bg-transparent', label: 'Com pedidos' },
     { className: 'bg-ouro', label: 'Minha reserva' },
+    { className: 'bg-linha', label: 'Bloqueada' },
   ]
   return (
     <div className="mt-4 flex flex-wrap justify-center gap-4">
@@ -202,6 +230,7 @@ function ReservationPanel({
   existing,
   availability,
   bookable,
+  blocked,
   submitting,
   error,
   onSubmit,
@@ -211,6 +240,7 @@ function ReservationPanel({
   existing?: Reservation
   availability?: DateAvailability
   bookable: boolean
+  blocked?: BlockedDate
   submitting: boolean
   error: boolean
   onSubmit: (v: {
@@ -235,7 +265,9 @@ function ReservationPanel({
         )}
       </div>
 
-      {isConfirmed ? (
+      {blocked ? (
+        <Alert tone="info">Data indisponível: {blocked.motivo}</Alert>
+      ) : isConfirmed ? (
         <Alert tone="info">
           Esta data já está confirmada para outro evento.
         </Alert>
