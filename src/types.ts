@@ -38,3 +38,9 @@ export interface DateAvailability {
   tem_confirmada: boolean
   qtd_pendentes: number
 }
+
+/** Data bloqueada pelo admin (indisponível para reserva). */
+export interface BlockedDate {
+  data: string // yyyy-MM-dd
+  motivo: string
+}
