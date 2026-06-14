@@ -18,6 +18,9 @@ dist-ssr
 # Local agent/skill tooling
 .agents
 
+# Backlog interno (não versionar)
+docs/v2-backlog.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
