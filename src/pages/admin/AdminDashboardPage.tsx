@@ -7,7 +7,7 @@ import {
   rejectReservation,
 } from '../../api/reservations'
 import { blockDate, fetchBlockedDates, unblockDate } from '../../api/blockedDates'
-import { formatLong, formatShort, fromISODate } from '../../lib/dates'
+import { formatLong, formatShort, fromISODate, toISODate } from '../../lib/dates'
 import { maskPhone, whatsappUrl } from '../../lib/phone'
 import { Alert, Button, Card, EmptyState, Field, Input, PageHeader, Rule, Spinner } from '../../components/ui'
 import type { ReservationWithProfile } from '../../types'
@@ -77,7 +77,7 @@ export function AdminDashboardPage() {
   const [motivo, setMotivo] = useState('')
   const [blockError, setBlockError] = useState<string | null>(null)
 
-  const hojeISO = new Date().toISOString().slice(0, 10)
+  const hojeISO = toISODate(new Date())
 
   const blockedQuery = useQuery({
     queryKey: ['blocked-admin'],
