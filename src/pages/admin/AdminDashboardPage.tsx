@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   confirmReservation,
@@ -6,10 +6,9 @@ import {
   fetchPendingReservations,
   rejectReservation,
 } from '../../api/reservations'
-import { blockDate, fetchBlockedDates, unblockDate } from '../../api/blockedDates'
-import { formatLong, formatShort, fromISODate, toISODate } from '../../lib/dates'
+import { formatLong, formatShort, fromISODate } from '../../lib/dates'
 import { maskPhone, whatsappUrl } from '../../lib/phone'
-import { Alert, Button, Card, EmptyState, Field, Input, PageHeader, Rule, Spinner } from '../../components/ui'
+import { Button, Card, EmptyState, PageHeader, Rule, Spinner } from '../../components/ui'
 import type { ReservationWithProfile } from '../../types'
 
 /** Link de contato no WhatsApp; só renderiza quando há telefone. */
@@ -72,47 +71,6 @@ export function AdminDashboardPage() {
   }, [pending])
 
   const busy = confirmMutation.isPending || rejectMutation.isPending
-
-  const [novaData, setNovaData] = useState('')
-  const [motivo, setMotivo] = useState('')
-  const [blockError, setBlockError] = useState<string | null>(null)
-
-  const hojeISO = toISODate(new Date())
-
-  const blockedQuery = useQuery({
-    queryKey: ['blocked-admin'],
-    queryFn: () => fetchBlockedDates(hojeISO, '2100-01-01'),
-  })
-  const blocked = blockedQuery.data ?? []
-
-  const blockMutation = useMutation({
-    mutationFn: () => blockDate(novaData, motivo.trim()),
-    onSuccess: () => {
-      setNovaData('')
-      setMotivo('')
-      setBlockError(null)
-      queryClient.invalidateQueries({ queryKey: ['blocked-admin'] })
-      queryClient.invalidateQueries({ queryKey: ['blocked'] })
-      queryClient.invalidateQueries({ queryKey: ['availability'] })
-    },
-    onError: (e: unknown) => {
-      const msg = e instanceof Error ? e.message : ''
-      setBlockError(
-        msg.includes('confirmada')
-          ? 'Essa data já tem uma reserva confirmada.'
-          : 'Não foi possível bloquear a data.',
-      )
-    },
-  })
-
-  const unblockMutation = useMutation({
-    mutationFn: (data: string) => unblockDate(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blocked-admin'] })
-      queryClient.invalidateQueries({ queryKey: ['blocked'] })
-      queryClient.invalidateQueries({ queryKey: ['availability'] })
-    },
-  })
 
   return (
     <div className="space-y-8">
@@ -255,84 +213,6 @@ export function AdminDashboardPage() {
         )}
       </section>
 
-      <Rule />
-
-      <section className="space-y-5">
-        <PageHeader
-          as="h2"
-          eyebrow="Calendário"
-          title="Datas bloqueadas"
-        />
-
-        <Card className="space-y-4">
-          {blockError && <Alert tone="error">{blockError}</Alert>}
-          <form
-            className="space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (!novaData || !motivo.trim()) return
-              blockMutation.mutate()
-            }}
-          >
-            <Field label="Data">
-              <Input
-                type="date"
-                min={hojeISO}
-                value={novaData}
-                onChange={(e) => setNovaData(e.target.value)}
-                required
-              />
-            </Field>
-            <Field label="Motivo">
-              <Input
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-                placeholder="Feriado, manutenção, evento da Loja…"
-                required
-              />
-            </Field>
-            <Button
-              type="submit"
-              loading={blockMutation.isPending}
-              className="w-full"
-            >
-              Bloquear data
-            </Button>
-          </form>
-        </Card>
-
-        {blockedQuery.isLoading ? (
-          <div className="flex justify-center py-6 text-granada">
-            <Spinner className="size-6" />
-          </div>
-        ) : blocked.length === 0 ? (
-          <EmptyState>Nenhuma data bloqueada.</EmptyState>
-        ) : (
-          <ul className="space-y-3">
-            {blocked.map((b) => (
-              <Card key={b.data} className="flex items-center gap-4">
-                <div className="min-w-0 flex-1">
-                  <span className="font-display text-lg capitalize text-granada">
-                    {formatLong(fromISODate(b.data))}
-                  </span>
-                  <p className="font-body text-sm text-tinta-mid">{b.motivo}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="shrink-0"
-                  loading={
-                    unblockMutation.isPending &&
-                    unblockMutation.variables === b.data
-                  }
-                  onClick={() => unblockMutation.mutate(b.data)}
-                >
-                  Desbloquear
-                </Button>
-              </Card>
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   )
 }

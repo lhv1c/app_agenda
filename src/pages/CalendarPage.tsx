@@ -3,6 +3,7 @@ import { DayPicker } from 'react-day-picker'
 import { ptBR } from 'react-day-picker/locale'
 import 'react-day-picker/style.css'
 import {
+  addDays,
   endOfMonth,
   startOfMonth,
   isSameDay,
@@ -11,7 +12,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../auth/context'
 import { fetchAvailability } from '../api/availability'
-import { fetchBlockedDates } from '../api/blockedDates'
+import { blockDate, fetchBlockedDates, unblockDate } from '../api/blockedDates'
 import { createReservation, fetchMyReservations } from '../api/reservations'
 import {
   formatLong,
@@ -34,7 +35,7 @@ import {
 import type { BlockedDate, DateAvailability, Reservation } from '../types'
 
 export function CalendarPage() {
-  const { session } = useAuth()
+  const { session, isAdmin } = useAuth()
   const userId = session!.user.id
   const queryClient = useQueryClient()
   const [month, setMonth] = useState<Date>(new Date())
@@ -124,6 +125,37 @@ export function CalendarPage() {
     },
   })
 
+  // Admin gere bloqueios direto no calendário (tocar a data).
+  const [blockError, setBlockError] = useState<string | null>(null)
+
+  function invalidateBlocked() {
+    queryClient.invalidateQueries({ queryKey: ['blocked'] })
+    queryClient.invalidateQueries({ queryKey: ['availability'] })
+    setSelected(undefined)
+  }
+
+  const blockMutation = useMutation({
+    mutationFn: (input: { data: string; motivo: string }) =>
+      blockDate(input.data, input.motivo),
+    onSuccess: () => {
+      setBlockError(null)
+      invalidateBlocked()
+    },
+    onError: (e: unknown) => {
+      const msg = e instanceof Error ? e.message : ''
+      setBlockError(
+        msg.includes('confirmada')
+          ? 'Essa data já tem uma reserva confirmada.'
+          : 'Não foi possível bloquear a data.',
+      )
+    },
+  })
+
+  const unblockMutation = useMutation({
+    mutationFn: (data: string) => unblockDate(data),
+    onSuccess: invalidateBlocked,
+  })
+
   const loading =
     availabilityQuery.isLoading ||
     myReservationsQuery.isLoading ||
@@ -134,7 +166,11 @@ export function CalendarPage() {
       <PageHeader
         eyebrow="Salão da Loja"
         title="Calendário"
-        description="As reservas abrem 60 dias antes e fecham 3 dias antes do evento."
+        description={
+          isAdmin
+            ? 'Toque uma data para bloquear ou liberar o salão.'
+            : 'As reservas abrem 60 dias antes e fecham 3 dias antes do evento.'
+        }
       />
 
       <Card className="flex flex-col items-center">
@@ -151,9 +187,11 @@ export function CalendarPage() {
             selected={selected}
             onSelect={setSelected}
             startMonth={startOfDay(new Date())}
-            endMonth={max}
+            endMonth={isAdmin ? addDays(startOfDay(new Date()), 365) : max}
             disabled={(date) =>
-              !isBookable(date) || isConfirmed(date) || isBlocked(date)
+              isAdmin
+                ? startOfDay(date) < startOfDay(new Date())
+                : !isBookable(date) || isConfirmed(date) || isBlocked(date)
             }
             modifiers={{
               confirmada: confirmedDates,
@@ -177,7 +215,22 @@ export function CalendarPage() {
         <Legend />
       </Card>
 
-      {selected && (
+      {selected && isAdmin && (
+        <AdminDatePanel
+          date={selected}
+          blocked={blockedOn(selected)}
+          isConfirmed={isConfirmed(selected)}
+          blocking={blockMutation.isPending}
+          unblocking={unblockMutation.isPending}
+          error={blockError}
+          onBlock={(motivo) =>
+            blockMutation.mutate({ data: toISODate(selected), motivo })
+          }
+          onUnblock={() => unblockMutation.mutate(toISODate(selected))}
+        />
+      )}
+
+      {selected && !isAdmin && (
         <ReservationPanel
           date={selected}
           isConfirmed={isConfirmed(selected)}
@@ -197,11 +250,89 @@ export function CalendarPage() {
         />
       )}
 
-      <p className="eyebrow text-center">
-        Período aberto · {min.toLocaleDateString('pt-BR')} a{' '}
-        {max.toLocaleDateString('pt-BR')}
-      </p>
+      {!isAdmin && (
+        <p className="eyebrow text-center">
+          Período aberto · {min.toLocaleDateString('pt-BR')} a{' '}
+          {max.toLocaleDateString('pt-BR')}
+        </p>
+      )}
     </div>
+  )
+}
+
+function AdminDatePanel({
+  date,
+  blocked,
+  isConfirmed,
+  blocking,
+  unblocking,
+  error,
+  onBlock,
+  onUnblock,
+}: {
+  date: Date
+  blocked?: BlockedDate
+  isConfirmed: boolean
+  blocking: boolean
+  unblocking: boolean
+  error: string | null
+  onBlock: (motivo: string) => void
+  onUnblock: () => void
+}) {
+  const [motivo, setMotivo] = useState('')
+
+  return (
+    <Card className="space-y-4">
+      <div>
+        <Eyebrow>Data escolhida</Eyebrow>
+        <h2 className="font-display text-2xl capitalize text-granada">
+          {formatLong(date)}
+        </h2>
+      </div>
+
+      {blocked ? (
+        <>
+          <Alert tone="info">Bloqueada: {blocked.motivo}</Alert>
+          <Button
+            variant="outline"
+            onClick={onUnblock}
+            loading={unblocking}
+            className="w-full"
+          >
+            Desbloquear data
+          </Button>
+        </>
+      ) : isConfirmed ? (
+        <Alert tone="info">
+          Esta data tem uma reserva confirmada e não pode ser bloqueada.
+        </Alert>
+      ) : (
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (!motivo.trim()) return
+            onBlock(motivo.trim())
+          }}
+        >
+          {error && <Alert tone="error">{error}</Alert>}
+          <Field label="Motivo do bloqueio">
+            <Input
+              value={motivo}
+              onChange={(e) => setMotivo(e.target.value)}
+              placeholder="Feriado, manutenção, evento da Loja…"
+              required
+            />
+          </Field>
+          <Button type="submit" loading={blocking} className="w-full">
+            Bloquear data
+          </Button>
+          <p className="eyebrow text-center">
+            O membro verá a data indisponível, com este motivo.
+          </p>
+        </form>
+      )}
+    </Card>
   )
 }
 
