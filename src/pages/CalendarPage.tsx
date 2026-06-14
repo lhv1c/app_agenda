@@ -105,9 +105,6 @@ export function CalendarPage() {
   function availabilityOn(date: Date): DateAvailability | undefined {
     return availability.find((a) => isSameDay(fromISODate(a.data), date))
   }
-  function isBlocked(date: Date) {
-    return blockedDates.some((d) => isSameDay(d, date))
-  }
   function blockedOn(date: Date): BlockedDate | undefined {
     return blocked.find((b) => isSameDay(fromISODate(b.data), date))
   }
@@ -191,7 +188,7 @@ export function CalendarPage() {
             disabled={(date) =>
               isAdmin
                 ? startOfDay(date) < startOfDay(new Date())
-                : !isBookable(date) || isConfirmed(date) || isBlocked(date)
+                : !isBookable(date) || isConfirmed(date)
             }
             modifiers={{
               confirmada: confirmedDates,
