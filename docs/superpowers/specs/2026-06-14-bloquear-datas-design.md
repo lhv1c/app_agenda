@@ -113,16 +113,25 @@ create trigger before_block_insert
 - `ReservationPanel`: quando a data está bloqueada, renderiza `Alert tone="info"`
   com o `motivo` (ex.: "Data indisponível: feriado") — antes dos outros ramos.
 
-### 4. Admin — `src/pages/admin/AdminDashboardPage.tsx`
+### 4. Admin — bloqueio direto no calendário (`src/pages/CalendarPage.tsx`)
 
-Nova seção "Datas bloqueadas" (mesmo padrão de `<section>` + `PageHeader as="h2"`
-das outras, separada por `<Rule />`):
-- Form: `Input type="date"` (mín. hoje) + `Input` motivo + `Button` "Bloquear".
-  Usa mutation `blockDate`; em erro mostra `Alert` ("Data tem reserva confirmada"
-  vs genérico). Invalida queries `['blocked']` e `['availability']`.
-- Lista das datas bloqueadas (a partir de hoje em diante) com `data` formatada +
-  `motivo` + `Button variant="outline"` "Desbloquear" (mutation `unblockDate`).
-- Layout/refino visual da seção via **frontend-design** na implementação.
+> **Revisão pós-implementação (2026-06-14):** a primeira versão pôs uma seção
+> "Datas bloqueadas" no rodapé do `AdminDashboardPage`. Ruim: fica abaixo das listas
+> de pendentes/confirmadas, que crescem com o tempo, enterrando a ação; e a própria
+> lista de bloqueios cresceria sem limite. Substituído por **bloqueio direto no
+> calendário** — o calendário já é a lista, escala sozinho.
+
+O `CalendarPage` é compartilhado (membro e admin acessam `/`). Para `isAdmin`:
+- O `DayPicker` solta as travas do membro: `endMonth` vai a +12 meses e `disabled`
+  passa a barrar só datas passadas (admin pode selecionar qualquer data futura,
+  inclusive bloqueadas e confirmadas).
+- Ao selecionar uma data, em vez do `ReservationPanel` renderiza-se `AdminDatePanel`:
+  - data **bloqueada** → mostra o motivo + botão "Desbloquear data" (`unblockDate`).
+  - data com reserva **confirmada** → aviso de que não pode ser bloqueada.
+  - data **livre** → form com `Input` motivo + botão "Bloquear data" (`blockDate`);
+    erro vira `Alert` ("já tem reserva confirmada" vs genérico).
+- Mutations invalidam `['blocked']` e `['availability']`. O `AdminDashboardPage`
+  não tem mais nada de bloqueio.
 
 ## Tratamento de erro
 - `blockDate` rejeitado pelo trigger (data confirmada) → `Alert` no form admin.
