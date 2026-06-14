@@ -8,9 +8,9 @@ Lista de funcionalidades planejadas para a v2. Cada item tem escopo, dependênci
 
 ## Ordem sugerida
 
-1. Editar perfil + telefone _(esforço baixo; destrava contato com o membro)_
+1. ~~Editar perfil + telefone~~ ✅ FEITO (2026-06-14) — WhatsApp no cadastro/perfil + link wa.me admin.
 2. Gestão de convites no painel _(remove dor operacional de mexer no banco)_
-3. Bloquear datas _(controle do admin sobre o calendário)_
+3. ~~Bloquear datas~~ ✅ FEITO (2026-06-14) — admin bloqueia/desbloqueia direto no calendário; membro vê motivo.
 4. Lembrete automático _(depende de habilitar agendamento; e-mail já pronto)_
 5. Web Push _(complementa o lembrete)_
 6. Code-split do bundle _(otimização)_
