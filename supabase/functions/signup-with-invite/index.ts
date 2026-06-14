@@ -23,6 +23,7 @@ Deno.serve(async (req) => {
   let payload: {
     nome?: string
     email?: string
+    telefone?: string
     senha?: string
     codigo?: string
   }
@@ -34,10 +35,18 @@ Deno.serve(async (req) => {
 
   const nome = (payload.nome ?? '').trim()
   const email = (payload.email ?? '').trim().toLowerCase()
+  const telefone = (payload.telefone ?? '').replace(/\D/g, '')
   const senha = payload.senha ?? ''
   const codigo = (payload.codigo ?? '').trim()
 
-  if (!nome || !email || senha.length < 6 || !codigo) {
+  if (
+    !nome ||
+    !email ||
+    telefone.length < 10 ||
+    telefone.length > 11 ||
+    senha.length < 6 ||
+    !codigo
+  ) {
     return json({ error: 'dados_invalidos' }, 400)
   }
 
@@ -62,7 +71,7 @@ Deno.serve(async (req) => {
     email,
     password: senha,
     email_confirm: true,
-    user_metadata: { nome },
+    user_metadata: { nome, telefone },
   })
 
   if (createError) {

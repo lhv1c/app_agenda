@@ -7,6 +7,7 @@ import { RecoverPasswordPage } from './pages/RecoverPasswordPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { CalendarPage } from './pages/CalendarPage'
 import { MyReservationsPage } from './pages/MyReservationsPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<CalendarPage />} />
           <Route path="/minhas-reservas" element={<MyReservationsPage />} />
+          <Route path="/perfil" element={<ProfilePage />} />
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminDashboardPage />} />
           </Route>

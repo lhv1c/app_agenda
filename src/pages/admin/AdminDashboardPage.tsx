@@ -7,8 +7,27 @@ import {
   rejectReservation,
 } from '../../api/reservations'
 import { formatLong, formatShort, fromISODate } from '../../lib/dates'
+import { maskPhone, whatsappUrl } from '../../lib/phone'
 import { Button, Card, EmptyState, PageHeader, Rule, Spinner } from '../../components/ui'
 import type { ReservationWithProfile } from '../../types'
+
+/** Link de contato no WhatsApp; só renderiza quando há telefone. */
+function WhatsAppLink({ telefone }: { telefone: string | null | undefined }) {
+  if (!telefone) return null
+  return (
+    <a
+      href={whatsappUrl(telefone)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-1 inline-flex items-center gap-1 font-mono text-[0.625rem] uppercase tracking-[0.08em] text-granada underline decoration-ouro underline-offset-2"
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5" aria-hidden>
+        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.8 14.13c-.25.69-1.44 1.32-1.99 1.36-.53.05-1.02.24-3.45-.72-2.91-1.15-4.76-4.12-4.9-4.31-.14-.19-1.16-1.54-1.16-2.94s.73-2.08 1-2.37c.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.41-.07.64.49.25.6.84 2.07.91 2.22.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.17-.29.38-.42.51-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.28.36-.23.61-.14.25.09 1.6.76 1.87.9.28.14.46.21.53.32.07.12.07.66-.18 1.35Z" />
+      </svg>
+      {maskPhone(telefone)}
+    </a>
+  )
+}
 
 export function AdminDashboardPage() {
   const queryClient = useQueryClient()
@@ -94,6 +113,7 @@ export function AdminDashboardPage() {
                       <p className="eyebrow text-[9px]! tracking-[0.02em]! normal-case! break-all">
                         {r.profile?.email}
                       </p>
+                      <WhatsAppLink telefone={r.profile?.telefone} />
                       {r.num_convidados != null && (
                         <p className="mt-1 font-body text-sm text-tinta-mid">
                           {r.num_convidados} convidado(s)
@@ -175,6 +195,7 @@ export function AdminDashboardPage() {
                       </span>
                     )}
                   </p>
+                  <WhatsAppLink telefone={r.profile?.telefone} />
                   {r.observacoes && (
                     <p className="font-body text-sm text-tinta-mid">
                       {r.observacoes}

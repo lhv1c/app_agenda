@@ -10,6 +10,7 @@ export interface Profile {
   id: string
   nome: string
   email: string
+  telefone: string | null
   role: Role
   created_at: string
 }
@@ -28,7 +29,7 @@ export interface Reservation {
 
 /** Reservation joined with the requester's profile (admin views). */
 export interface ReservationWithProfile extends Reservation {
-  profile: Pick<Profile, 'nome' | 'email'> | null
+  profile: Pick<Profile, 'nome' | 'email' | 'telefone'> | null
 }
 
 /** Aggregated availability per date, exposed to all members (no personal data). */

@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { AuthShell } from '../components/AuthShell'
 import { Alert, Button, Field, Input, PasswordInput } from '../components/ui'
+import { isValidPhone, maskPhone, phoneDigits } from '../lib/phone'
 
 export function SignupPage() {
   const navigate = useNavigate()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
+  const [telefone, setTelefone] = useState('')
   const [senha, setSenha] = useState('')
   const [codigo, setCodigo] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,6 +18,10 @@ export function SignupPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+    if (!isValidPhone(telefone)) {
+      setError('Informe um WhatsApp válido com DDD.')
+      return
+    }
     if (senha.length < 6) {
       setError('A senha deve ter ao menos 6 caracteres.')
       return
@@ -29,6 +35,7 @@ export function SignupPage() {
         body: {
           nome: nome.trim(),
           email: email.trim(),
+          telefone: phoneDigits(telefone),
           senha,
           codigo: codigo.trim(),
         },
@@ -100,6 +107,17 @@ export function SignupPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+        </Field>
+        <Field label="WhatsApp">
+          <Input
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel"
+            required
+            value={telefone}
+            onChange={(e) => setTelefone(maskPhone(e.target.value))}
+            placeholder="(44) 99999-9999"
           />
         </Field>
         <Field label="Senha">

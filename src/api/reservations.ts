@@ -54,7 +54,7 @@ export async function fetchPendingReservations(): Promise<
 > {
   const { data, error } = await supabase
     .from('reservations')
-    .select('*, profile:profiles(nome, email)')
+    .select('*, profile:profiles(nome, email, telefone)')
     .eq('status', 'pendente')
     .order('data', { ascending: true })
     .order('created_at', { ascending: true })
@@ -68,7 +68,7 @@ export async function fetchConfirmedReservations(): Promise<
 > {
   const { data, error } = await supabase
     .from('reservations')
-    .select('*, profile:profiles(nome, email)')
+    .select('*, profile:profiles(nome, email, telefone)')
     .eq('status', 'confirmada')
     .order('data', { ascending: true })
   if (error) throw error

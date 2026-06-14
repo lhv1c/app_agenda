@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { useAuth } from '../auth/context'
 
@@ -38,11 +38,11 @@ function ShieldIcon() {
   )
 }
 
-function LogoutIcon() {
+function UserIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="size-6" aria-hidden>
-      <path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M10 8l-4 4 4 4M6 12h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M5 20c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   )
 }
@@ -82,13 +82,7 @@ function Tab({
 }
 
 export function TabBar() {
-  const { isAdmin, signOut } = useAuth()
-  const navigate = useNavigate()
-
-  async function handleSignOut() {
-    await signOut()
-    navigate('/login', { replace: true })
-  }
+  const { isAdmin } = useAuth()
 
   return (
     <div className="fixed inset-x-0 bottom-4 z-20 flex justify-center px-4 pb-[env(safe-area-inset-bottom)]">
@@ -96,13 +90,7 @@ export function TabBar() {
         <Tab to="/" icon={<CalendarIcon />} label="Calendário" />
         <Tab to="/minhas-reservas" icon={<BookmarkIcon />} label="Reservas" />
         {isAdmin && <Tab to="/admin" icon={<ShieldIcon />} label="Admin" />}
-        <button
-          onClick={handleSignOut}
-          className={`${itemClass} text-tinta-mid transition-colors hover:text-granada`}
-        >
-          <LogoutIcon />
-          <span className={labelClass}>Sair</span>
-        </button>
+        <Tab to="/perfil" icon={<UserIcon />} label="Perfil" />
       </nav>
     </div>
   )
