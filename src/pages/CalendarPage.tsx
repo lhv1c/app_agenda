@@ -170,7 +170,7 @@ export function CalendarPage() {
               selected:
                 'outline outline-2 outline-offset-1 outline-granada rounded-full',
               bloqueada:
-                'bg-linha text-tinta-mid/60 rounded-full line-through',
+                'rounded-full text-tinta-mid/70 line-through [background-image:repeating-linear-gradient(45deg,rgb(36_31_26/0.10)_0,rgb(36_31_26/0.10)_1px,transparent_1px,transparent_5px)]',
             }}
           />
         )}
@@ -210,7 +210,11 @@ function Legend() {
     { className: 'bg-granada', label: 'Confirmada' },
     { className: 'ring-1 ring-inset ring-ouro bg-transparent', label: 'Com pedidos' },
     { className: 'bg-ouro', label: 'Minha reserva' },
-    { className: 'bg-linha', label: 'Bloqueada' },
+    {
+      className:
+        'bg-pergaminho ring-1 ring-inset ring-linha [background-image:repeating-linear-gradient(45deg,rgb(36_31_26/0.35)_0,rgb(36_31_26/0.35)_1px,transparent_1px,transparent_3px)]',
+      label: 'Bloqueada',
+    },
   ]
   return (
     <div className="mt-4 flex flex-wrap justify-center gap-4">
