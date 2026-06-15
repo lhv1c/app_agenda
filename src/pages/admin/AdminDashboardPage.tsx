@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   confirmReservation,
@@ -8,7 +8,8 @@ import {
 } from '../../api/reservations'
 import { formatLong, formatShort, fromISODate } from '../../lib/dates'
 import { maskPhone, whatsappUrl } from '../../lib/phone'
-import { Button, Card, EmptyState, PageHeader, Rule, Spinner } from '../../components/ui'
+import { MESES } from '../../lib/months'
+import { Button, Card, EmptyState, Field, PageHeader, Rule, Select, Spinner } from '../../components/ui'
 import type { ReservationWithProfile } from '../../types'
 
 /** Link de contato no WhatsApp; só renderiza quando há telefone. */
@@ -58,6 +59,50 @@ export function AdminDashboardPage() {
 
   const pending = pendingQuery.data ?? []
   const confirmed = confirmedQuery.data ?? []
+
+  // Filtros da lista de confirmadas (no cliente). "" = "Todos".
+  const [filtroIrmao, setFiltroIrmao] = useState('')
+  const [filtroMes, setFiltroMes] = useState('') // "1".."12"
+  const [filtroAno, setFiltroAno] = useState('') // "2026" etc.
+
+  const filtroAtivo = filtroIrmao !== '' || filtroMes !== '' || filtroAno !== ''
+
+  function limparFiltros() {
+    setFiltroIrmao('')
+    setFiltroMes('')
+    setFiltroAno('')
+  }
+
+  // Nomes distintos que têm confirmada, ordenados (pt-BR).
+  const nomesIrmaos = useMemo(() => {
+    const set = new Set<string>()
+    for (const r of confirmed) {
+      const nome = r.profile?.nome
+      if (nome) set.add(nome)
+    }
+    return [...set].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  }, [confirmed])
+
+  // Anos distintos das datas (mín..máx), garantindo o ano atual mesmo sem dados.
+  const anosDisponiveis = useMemo(() => {
+    const anos = confirmed.map((r) => fromISODate(r.data).getFullYear())
+    anos.push(new Date().getFullYear())
+    const min = Math.min(...anos)
+    const max = Math.max(...anos)
+    const range: number[] = []
+    for (let y = min; y <= max; y++) range.push(y)
+    return range
+  }, [confirmed])
+
+  const confirmadasFiltradas = useMemo(() => {
+    return confirmed.filter((r) => {
+      if (filtroIrmao && r.profile?.nome !== filtroIrmao) return false
+      const d = fromISODate(r.data)
+      if (filtroMes && d.getMonth() + 1 !== Number(filtroMes)) return false
+      if (filtroAno && d.getFullYear() !== Number(filtroAno)) return false
+      return true
+    })
+  }, [confirmed, filtroIrmao, filtroMes, filtroAno])
 
   // Group pending requests by date so the admin sees the waitlist per day.
   const groups = useMemo(() => {
@@ -172,15 +217,73 @@ export function AdminDashboardPage() {
           title="Reservas confirmadas"
         />
 
+        {/* Barra de filtro — consulta ao arquivo da Loja. Só aparece com dados. */}
+        {confirmed.length > 0 && (
+          <div className="space-y-3 border-b border-ouro/30 pb-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <Field label="Irmão">
+                <Select
+                  value={filtroIrmao}
+                  onChange={(e) => setFiltroIrmao(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {nomesIrmaos.map((nome) => (
+                    <option key={nome} value={nome}>
+                      {nome}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Mês">
+                <Select
+                  value={filtroMes}
+                  onChange={(e) => setFiltroMes(e.target.value)}
+                >
+                  <option value="">Todos os meses</option>
+                  {MESES.map((nome, i) => (
+                    <option key={nome} value={String(i + 1)}>
+                      {nome}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Ano">
+                <Select
+                  value={filtroAno}
+                  onChange={(e) => setFiltroAno(e.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {anosDisponiveis.map((ano) => (
+                    <option key={ano} value={String(ano)}>
+                      {ano}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+            {filtroAtivo && (
+              <div className="flex justify-end">
+                <Button variant="ghost" onClick={limparFiltros}>
+                  <span aria-hidden>&#9670;</span> Limpar
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
         {confirmedQuery.isLoading ? (
           <div className="flex justify-center py-10 text-granada">
             <Spinner className="size-7" />
           </div>
         ) : confirmed.length === 0 ? (
           <EmptyState>Nenhuma reserva confirmada.</EmptyState>
+        ) : confirmadasFiltradas.length === 0 ? (
+          <EmptyState hint="Ajuste ou limpe os filtros.">
+            Nenhuma reserva confirmada com esses filtros.
+          </EmptyState>
         ) : (
           <ul className="space-y-3">
-            {confirmed.map((r) => (
+            {confirmadasFiltradas.map((r) => (
               <Card key={r.id} className="flex items-center gap-4">
                 <div className="min-w-0 flex-1">
                   <span className="font-display text-xl capitalize text-granada">
