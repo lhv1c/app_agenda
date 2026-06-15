@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
+  SelectHTMLAttributes,
   TextareaHTMLAttributes,
   ReactNode,
 } from 'react'
@@ -82,6 +83,40 @@ export function PasswordInput({
           </svg>
         )}
       </button>
+    </div>
+  )
+}
+
+/** Select nativo estilizado no padrão Prancha, com chevron ouro próprio. */
+export function Select({
+  className = '',
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="relative">
+      <select
+        className={`${fieldClass} min-h-11 cursor-pointer appearance-none pr-10 ${className}`}
+        {...props}
+      >
+        {children}
+      </select>
+      <span
+        className="pointer-events-none absolute inset-y-0 right-0 flex w-10 items-center justify-center text-ouro"
+        aria-hidden
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="size-4"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </span>
     </div>
   )
 }
