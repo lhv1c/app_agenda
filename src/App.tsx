@@ -9,6 +9,8 @@ import { CalendarPage } from './pages/CalendarPage'
 import { MyReservationsPage } from './pages/MyReservationsPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
+import { AdminLayout } from './components/AdminLayout'
+import { RevenueReportPage } from './pages/admin/RevenueReportPage'
 
 export default function App() {
   return (
@@ -24,7 +26,10 @@ export default function App() {
           <Route path="/minhas-reservas" element={<MyReservationsPage />} />
           <Route path="/perfil" element={<ProfilePage />} />
           <Route element={<AdminRoute />}>
-            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminDashboardPage />} />
+              <Route path="/admin/receita" element={<RevenueReportPage />} />
+            </Route>
           </Route>
         </Route>
       </Route>
