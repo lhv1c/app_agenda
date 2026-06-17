@@ -44,3 +44,15 @@ export interface BlockedDate {
   data: string // yyyy-MM-dd
   motivo: string
 }
+
+/** Linha do relatório de receita (view revenue_entries). Uma por confirmada. */
+export interface RevenueEntry {
+  id: string
+  user_id: string
+  nome: string
+  data: string // yyyy-MM-dd
+  ano: number
+  ordinal: number
+  rate: number // 0.20 (1ª/2ª) | 0.40 (extra)
+  sm: number | null // salário mínimo do ano, ou null se não cadastrado
+}
