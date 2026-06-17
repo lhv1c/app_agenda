@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../auth/context'
 import { cancelReservation, fetchMyReservations } from '../api/reservations'
+import { fetchMyRevenueOrdinals } from '../api/revenue'
 import { formatShort, fromISODate } from '../lib/dates'
 import { StatusBadge } from '../components/StatusBadge'
 import { Button, Card, EmptyState, PageHeader, Spinner } from '../components/ui'
@@ -14,6 +15,11 @@ export function MyReservationsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['my-reservations', userId],
     queryFn: () => fetchMyReservations(userId),
+  })
+
+  const { data: ordinais } = useQuery({
+    queryKey: ['my-revenue-ordinals', userId],
+    queryFn: () => fetchMyRevenueOrdinals(userId),
   })
 
   const cancelMutation = useMutation({
@@ -44,6 +50,7 @@ export function MyReservationsPage() {
             <ReservationItem
               key={r.id}
               reservation={r}
+              ordinal={ordinais?.[r.id]}
               onCancel={() => cancelMutation.mutate(r.id)}
               cancelling={
                 cancelMutation.isPending && cancelMutation.variables === r.id
@@ -58,15 +65,23 @@ export function MyReservationsPage() {
 
 function ReservationItem({
   reservation,
+  ordinal,
   onCancel,
   cancelling,
 }: {
   reservation: Reservation
+  ordinal?: number
   onCancel: () => void
   cancelling: boolean
 }) {
   const canCancel =
     reservation.status === 'pendente' || reservation.status === 'confirmada'
+  const ordemTexto =
+    reservation.status === 'confirmada' && ordinal != null
+      ? ordinal <= 2
+        ? `${ordinal}ª reserva do ano`
+        : `${ordinal}ª reserva (extra)`
+      : null
   return (
     <Card className="flex items-center gap-4">
       <div className="min-w-0 flex-1">
@@ -76,6 +91,7 @@ function ReservationItem({
           </span>
           <StatusBadge status={reservation.status} />
         </div>
+        {ordemTexto && <p className="eyebrow mt-1">{ordemTexto}</p>}
         {reservation.num_convidados != null && (
           <p className="font-body text-sm text-tinta-mid">
             {reservation.num_convidados} convidado(s)
