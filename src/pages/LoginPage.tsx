@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { AuthShell } from '../components/AuthShell'
 import { Alert, Button, Field, Input, PasswordInput } from '../components/ui'
+import { useAuth } from '../auth/context'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const { inactiveNotice, clearInactiveNotice } = useAuth()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -14,6 +16,7 @@ export function LoginPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+    clearInactiveNotice()
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -40,6 +43,11 @@ export function LoginPage() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {inactiveNotice && (
+          <Alert tone="info">
+            Sua conta foi desativada. Procure a secretaria.
+          </Alert>
+        )}
         {error && <Alert tone="error">{error}</Alert>}
         <Field label="E-mail">
           <Input
