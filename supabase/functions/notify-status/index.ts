@@ -83,6 +83,7 @@ Deno.serve(async (req) => {
       .from('profiles')
       .select('email')
       .eq('role', 'admin')
+      .eq('ativo', true)
     if (error) console.error('erro ao buscar admins:', error.message)
     return (data ?? []).map((p) => p.email).filter(Boolean)
   }
