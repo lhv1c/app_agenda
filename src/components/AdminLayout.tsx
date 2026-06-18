@@ -24,13 +24,14 @@ function AdminTab({ to, label, end }: { to: string; label: string; end?: boolean
   )
 }
 
-/** Casca das páginas de admin: abas Secretaria / Receita + conteúdo. */
+/** Casca das páginas de admin: abas Secretaria / Receita / Membros + conteúdo. */
 export function AdminLayout() {
   return (
     <div className="space-y-6">
       <nav className="flex gap-6 border-b border-linha">
         <AdminTab to="/admin" label="Secretaria" end />
         <AdminTab to="/admin/receita" label="Receita" />
+        <AdminTab to="/admin/membros" label="Membros" />
       </nav>
       <Outlet />
     </div>

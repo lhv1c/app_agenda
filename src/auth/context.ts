@@ -9,6 +9,8 @@ export interface AuthState {
   isAdmin: boolean
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  inactiveNotice: boolean
+  clearInactiveNotice: () => void
 }
 
 export const AuthContext = createContext<AuthState | undefined>(undefined)

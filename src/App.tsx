@@ -11,6 +11,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminLayout } from './components/AdminLayout'
 import { RevenueReportPage } from './pages/admin/RevenueReportPage'
+import { MembersPage } from './pages/admin/MembersPage'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboardPage />} />
               <Route path="/admin/receita" element={<RevenueReportPage />} />
+              <Route path="/admin/membros" element={<MembersPage />} />
             </Route>
           </Route>
         </Route>

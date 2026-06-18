@@ -12,6 +12,7 @@ export interface Profile {
   email: string
   telefone: string | null
   role: Role
+  ativo: boolean
   created_at: string
 }
 
@@ -55,4 +56,14 @@ export interface RevenueEntry {
   ordinal: number
   rate: number // 0.20 (1ª/2ª) | 0.40 (extra)
   sm: number | null // salário mínimo do ano, ou null se não cadastrado
+}
+
+/** Perfil enxuto para a tela de gestão de membros (admin). */
+export interface Member {
+  id: string
+  nome: string
+  email: string
+  telefone: string | null
+  role: Role
+  ativo: boolean
 }
