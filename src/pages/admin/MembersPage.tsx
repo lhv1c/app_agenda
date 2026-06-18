@@ -13,6 +13,9 @@ import {
 } from '../../components/ui'
 import type { Member } from '../../types'
 
+/** Conta-mãe da Loja: sempre admin e ativa, intocável (espelha a trava do banco). */
+const ADMIN_PRINCIPAL = 'cienciaejustica@gmail.com'
+
 export function MembersPage() {
   const queryClient = useQueryClient()
   const { profile } = useAuth()
@@ -85,6 +88,7 @@ export function MembersPage() {
           {members.map((m) => {
             const isSelf = m.id === meId
             const isAdmin = m.role === 'admin'
+            const isFounder = m.email === ADMIN_PRINCIPAL
             return (
               <Card
                 key={m.id}
@@ -117,6 +121,11 @@ export function MembersPage() {
                     >
                       {isAdmin ? 'Admin' : 'Membro'}
                     </span>
+                    {isFounder && (
+                      <span className="inline-block rounded-[4px] border border-ouro/60 bg-ouro/10 px-1.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-ouro">
+                        Principal
+                      </span>
+                    )}
                     {!m.ativo && (
                       <span className="inline-block rounded-[4px] border border-linha bg-pergaminho px-1.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-tinta-mid">
                         Inativo
@@ -130,7 +139,7 @@ export function MembersPage() {
                     <Button
                       variant="outline"
                       onClick={() => rebaixar(m)}
-                      disabled={busy || isSelf}
+                      disabled={busy || isSelf || isFounder}
                     >
                       Rebaixar a membro
                     </Button>
@@ -147,7 +156,7 @@ export function MembersPage() {
                     <Button
                       variant="ghost"
                       onClick={() => desativar(m)}
-                      disabled={busy || isSelf}
+                      disabled={busy || isSelf || isFounder}
                     >
                       Desativar
                     </Button>
