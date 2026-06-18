@@ -134,42 +134,45 @@ export function MembersPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {isAdmin ? (
-                    <Button
-                      variant="outline"
-                      onClick={() => rebaixar(m)}
-                      disabled={busy || isSelf || isFounder}
-                    >
-                      Rebaixar a membro
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      onClick={() => promover(m)}
-                      disabled={busy}
-                    >
-                      Tornar admin
-                    </Button>
-                  )}
-                  {m.ativo ? (
-                    <Button
-                      variant="ghost"
-                      onClick={() => desativar(m)}
-                      disabled={busy || isSelf || isFounder}
-                    >
-                      Desativar
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      onClick={() => reativar(m)}
-                      disabled={busy}
-                    >
-                      Reativar
-                    </Button>
-                  )}
-                </div>
+                {/* Fundador é intocável: sem ações no card dele. */}
+                {!isFounder && (
+                  <div className="flex flex-wrap gap-2">
+                    {isAdmin ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => rebaixar(m)}
+                        disabled={busy || isSelf}
+                      >
+                        Rebaixar a membro
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        onClick={() => promover(m)}
+                        disabled={busy}
+                      >
+                        Tornar admin
+                      </Button>
+                    )}
+                    {m.ativo ? (
+                      <Button
+                        variant="ghost"
+                        onClick={() => desativar(m)}
+                        disabled={busy || isSelf}
+                      >
+                        Desativar
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        onClick={() => reativar(m)}
+                        disabled={busy}
+                      >
+                        Reativar
+                      </Button>
+                    )}
+                  </div>
+                )}
               </Card>
             )
           })}
