@@ -356,6 +356,64 @@ function Legend() {
   )
 }
 
+/** Form de reserva (convidados + observações), reusado por membro e admin. */
+function ReservationForm({
+  submitting,
+  error,
+  onSubmit,
+}: {
+  submitting: boolean
+  error: boolean
+  onSubmit: (v: {
+    num_convidados: number | null
+    observacoes: string | null
+  }) => void
+}) {
+  const [convidados, setConvidados] = useState('')
+  const [obs, setObs] = useState('')
+
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSubmit({
+          num_convidados: convidados ? Number(convidados) : null,
+          observacoes: obs.trim() || null,
+        })
+      }}
+    >
+      {error && (
+        <Alert tone="error">
+          Não foi possível enviar a pré-reserva. Tente novamente.
+        </Alert>
+      )}
+      <Field label="Número de convidados (opcional)">
+        <Input
+          type="number"
+          min={0}
+          value={convidados}
+          onChange={(e) => setConvidados(e.target.value)}
+        />
+      </Field>
+      <Field label="Observações (opcional)">
+        <Textarea
+          rows={3}
+          value={obs}
+          onChange={(e) => setObs(e.target.value)}
+          placeholder="Detalhes do evento, contato, etc."
+        />
+      </Field>
+      <Button type="submit" loading={submitting} className="w-full">
+        Solicitar pré-reserva
+      </Button>
+      <p className="eyebrow text-center">
+        A reserva fica pendente até a confirmação do administrador.
+      </p>
+    </form>
+  )
+}
+
 function ReservationPanel({
   date,
   isConfirmed,
@@ -380,9 +438,6 @@ function ReservationPanel({
     observacoes: string | null
   }) => void
 }) {
-  const [convidados, setConvidados] = useState('')
-  const [obs, setObs] = useState('')
-
   return (
     <Card className="space-y-4">
       <div>
@@ -411,44 +466,11 @@ function ReservationPanel({
       ) : !bookable ? (
         <Alert tone="info">Esta data está fora do período de reservas.</Alert>
       ) : (
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            onSubmit({
-              num_convidados: convidados ? Number(convidados) : null,
-              observacoes: obs.trim() || null,
-            })
-          }}
-        >
-          {error && (
-            <Alert tone="error">
-              Não foi possível enviar a pré-reserva. Tente novamente.
-            </Alert>
-          )}
-          <Field label="Número de convidados (opcional)">
-            <Input
-              type="number"
-              min={0}
-              value={convidados}
-              onChange={(e) => setConvidados(e.target.value)}
-            />
-          </Field>
-          <Field label="Observações (opcional)">
-            <Textarea
-              rows={3}
-              value={obs}
-              onChange={(e) => setObs(e.target.value)}
-              placeholder="Detalhes do evento, contato, etc."
-            />
-          </Field>
-          <Button type="submit" loading={submitting} className="w-full">
-            Solicitar pré-reserva
-          </Button>
-          <p className="eyebrow text-center">
-            A reserva fica pendente até a confirmação do administrador.
-          </p>
-        </form>
+        <ReservationForm
+          submitting={submitting}
+          error={error}
+          onSubmit={onSubmit}
+        />
       )}
     </Card>
   )
