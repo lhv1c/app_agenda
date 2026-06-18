@@ -26,8 +26,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const prof = data as Profile | null
     if (prof && prof.ativo === false) {
       // Conta desativada: derruba a sessão e sinaliza o aviso pra LoginPage.
+      // Zera session já aqui (não só via onAuthStateChange) pra ProtectedRoute
+      // não piscar a área logada antes do callback do signOut chegar.
       setInactiveNotice(true)
       setProfile(null)
+      setSession(null)
       currentUserId.current = null
       await supabase.auth.signOut()
       return
