@@ -165,7 +165,7 @@ export function CalendarPage() {
         title="Calendário"
         description={
           isAdmin
-            ? 'Toque uma data para bloquear ou liberar o salão.'
+            ? 'Toque uma data para reservar, bloquear ou liberar o salão.'
             : 'As reservas abrem 60 dias antes e fecham 3 dias antes do evento.'
         }
       />
@@ -214,16 +214,28 @@ export function CalendarPage() {
 
       {selected && isAdmin && (
         <AdminDatePanel
+          key={toISODate(selected)}
           date={selected}
           blocked={blockedOn(selected)}
           isConfirmed={isConfirmed(selected)}
+          bookable={isBookable(selected)}
+          existing={myReservationOn(selected)}
           blocking={blockMutation.isPending}
           unblocking={unblockMutation.isPending}
-          error={blockError}
+          blockError={blockError}
+          reserving={createMutation.isPending}
+          reserveError={createMutation.isError}
           onBlock={(motivo) =>
             blockMutation.mutate({ data: toISODate(selected), motivo })
           }
           onUnblock={() => unblockMutation.mutate(toISODate(selected))}
+          onReserve={(values) =>
+            createMutation.mutate({
+              data: toISODate(selected),
+              num_convidados: values.num_convidados,
+              observacoes: values.observacoes,
+            })
+          }
         />
       )}
 
@@ -261,22 +273,39 @@ function AdminDatePanel({
   date,
   blocked,
   isConfirmed,
+  bookable,
+  existing,
   blocking,
   unblocking,
-  error,
+  blockError,
+  reserving,
+  reserveError,
   onBlock,
   onUnblock,
+  onReserve,
 }: {
   date: Date
   blocked?: BlockedDate
   isConfirmed: boolean
+  bookable: boolean
+  existing?: Reservation
   blocking: boolean
   unblocking: boolean
-  error: string | null
+  blockError: string | null
+  reserving: boolean
+  reserveError: boolean
   onBlock: (motivo: string) => void
   onUnblock: () => void
+  onReserve: (v: {
+    num_convidados: number | null
+    observacoes: string | null
+  }) => void
 }) {
   const [motivo, setMotivo] = useState('')
+  // Aba default: Reservar quando a data é reservável e está livre; senão Bloquear.
+  const [tab, setTab] = useState<'reservar' | 'bloquear'>(
+    bookable && !isConfirmed && !blocked ? 'reservar' : 'bloquear',
+  )
 
   return (
     <Card className="space-y-4">
@@ -287,7 +316,35 @@ function AdminDatePanel({
         </h2>
       </div>
 
-      {blocked ? (
+      <div className="flex gap-6 border-b border-linha">
+        <AdminPanelTab active={tab === 'reservar'} onClick={() => setTab('reservar')}>
+          Reservar
+        </AdminPanelTab>
+        <AdminPanelTab active={tab === 'bloquear'} onClick={() => setTab('bloquear')}>
+          Bloquear
+        </AdminPanelTab>
+      </div>
+
+      {tab === 'reservar' ? (
+        blocked ? (
+          <Alert tone="info">Indisponível (bloqueada): {blocked.motivo}</Alert>
+        ) : isConfirmed ? (
+          <Alert tone="info">Esta data já está confirmada para um evento.</Alert>
+        ) : existing ? (
+          <Alert tone="success">
+            Você já tem uma reserva ({existing.status}) nesta data. Acompanhe em
+            “Minhas reservas”.
+          </Alert>
+        ) : !bookable ? (
+          <Alert tone="info">Esta data está fora do período de reservas.</Alert>
+        ) : (
+          <ReservationForm
+            submitting={reserving}
+            error={reserveError}
+            onSubmit={onReserve}
+          />
+        )
+      ) : blocked ? (
         <>
           <Alert tone="info">Bloqueada: {blocked.motivo}</Alert>
           <Button
@@ -312,7 +369,7 @@ function AdminDatePanel({
             onBlock(motivo.trim())
           }}
         >
-          {error && <Alert tone="error">{error}</Alert>}
+          {blockError && <Alert tone="error">{blockError}</Alert>}
           <Field label="Motivo do bloqueio">
             <Input
               value={motivo}
@@ -330,6 +387,32 @@ function AdminDatePanel({
         </form>
       )}
     </Card>
+  )
+}
+
+/** Aba do painel do admin (mesma linguagem da mini-nav admin). */
+function AdminPanelTab({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`relative px-1 py-2 font-mono text-xs uppercase tracking-[0.12em] transition-colors ${
+        active ? 'text-granada' : 'text-tinta-mid hover:text-granada'
+      }`}
+    >
+      {children}
+      {active && (
+        <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-ouro" />
+      )}
+    </button>
   )
 }
 
