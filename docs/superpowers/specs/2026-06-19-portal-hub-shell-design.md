@@ -140,3 +140,31 @@ módulo (layout próprio se tiver sub-abas, espelhando `AgendaLayout`/`AdminLayo
 spec/plano próprios. Backlog de módulos levantados: Comunicados, Mensalidades (nível "livro
 manual" recomendado — sem boleto/gateway), Aniversários, Diretório, Grau (rótulo),
 Documentos.
+
+---
+
+## Addendum 2026-06-19 — refinamento pós-implementação (aprovado e implementado)
+
+Após a 1ª versão funcionar, três ajustes pedidos pelo usuário (na mesma branch):
+
+1. **Card quadrado e reusável.** Extraído `src/components/ModuleCard.tsx` (tile `aspect-square`:
+   ícone + título + subtítulo, centralizado), usado tanto na Home quanto no hub de admin.
+   Home: card **Agenda** / "Salão Cristiano Cano". Grid `grid-cols-2`.
+
+2. **Área admin vira hub de cards** (mesma lógica do portal: cada módulo tem sua função de
+   admin; o que é do app inteiro fica separado).
+   - `/admin` → `AdminHomePage` (cards): **Agenda** / "Secretaria e receita" · **Membros** /
+     "Gestão de irmãos" (`UsersIcon` novo).
+   - `/admin/agenda` → `AdminAgendaLayout` (abas **Secretaria · Receita**) aninhando
+     `secretaria` (`AdminDashboardPage`) e `receita` (`RevenueReportPage`); index → secretaria.
+   - `/admin/membros` → `MembersPage` standalone (sem abas; é app-wide).
+   - Redirect deep link antigo `/admin/receita` → `/admin/agenda/receita`.
+   - `AdminLayout.tsx` (mini-nav antiga Secretaria·Receita·Membros) **removido**.
+   - Volta pro hub admin pela tab Admin.
+
+3. **Header forma B** — `Header` global = identidade da **Loja**: "Ciência e Justiça" (granada)
+   / "Loja Maçônica" (ouro) / "Oriente de Marialva" (eyebrow). O título da agenda
+   ("Agenda do Salão / Irmão Cristiano Cano") desceu pro topo da área Agenda, via `PageHeader`
+   dentro do `AgendaLayout` (acima das abas).
+   - Consequência: a Home não repete mais a identidade da Loja — `PageHeader` da Home virou
+     eyebrow "Portal da Loja" / título **"Módulos"** (evita duplicar o nome que agora vive no Header).
