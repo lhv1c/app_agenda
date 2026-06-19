@@ -6,7 +6,7 @@ export function AdminHomePage() {
   return (
     <div className="space-y-8">
       <PageHeader eyebrow="Administração" title="Painel" />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <ModuleCard
           to="/admin/agenda"
           title="Agenda"

@@ -16,14 +16,16 @@ export function ModuleCard({
   return (
     <Link
       to={to}
-      className="plaque flex aspect-square flex-col items-center justify-center gap-3 p-5 text-center transition-colors hover:border-ouro focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ouro"
+      className="plaque flex aspect-square flex-col items-center justify-center gap-2 p-3 text-center transition-colors hover:border-ouro focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ouro"
     >
-      <span className="text-granada [&>svg]:size-9">{icon}</span>
+      <span className="text-granada [&>svg]:size-7">{icon}</span>
       <span className="min-w-0">
-        <span className="block font-display text-xl font-semibold text-granada">
+        <span className="block font-display text-base font-semibold leading-tight text-granada">
           {title}
         </span>
-        <span className="block font-body text-sm text-tinta-mid">{subtitle}</span>
+        <span className="mt-0.5 block font-body text-xs leading-tight text-tinta-mid">
+          {subtitle}
+        </span>
       </span>
     </Link>
   )

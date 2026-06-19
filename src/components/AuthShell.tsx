@@ -18,10 +18,10 @@ export function AuthShell({
         <div className="mb-7 flex flex-col items-center text-center">
           <img src={logo} alt="Brasão da Loja" className="size-20" />
           <h1 className="mt-4 font-display text-3xl font-semibold tracking-wide text-granada">
-            Agenda do Salão
+            Ciência e Justiça
           </h1>
-          <p className="font-display text-lg text-ouro">Irmão Cristiano Cano</p>
-          <Eyebrow className="mt-1.5">Ciência e Justiça · Marialva</Eyebrow>
+          <p className="font-display text-lg text-ouro">Loja Maçônica</p>
+          <Eyebrow className="mt-1.5">Oriente de Marialva</Eyebrow>
         </div>
 
         {!isSupabaseConfigured && (
