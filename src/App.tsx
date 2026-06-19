@@ -5,6 +5,8 @@ import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { RecoverPasswordPage } from './pages/RecoverPasswordPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
+import { HomePage } from './pages/HomePage'
+import { AgendaLayout } from './components/AgendaLayout'
 import { CalendarPage } from './pages/CalendarPage'
 import { MyReservationsPage } from './pages/MyReservationsPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -23,9 +25,16 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<CalendarPage />} />
-          <Route path="/minhas-reservas" element={<MyReservationsPage />} />
+          <Route path="/home" element={<HomePage />} />
+
+          <Route path="/agenda" element={<AgendaLayout />}>
+            <Route index element={<Navigate to="/agenda/calendario" replace />} />
+            <Route path="calendario" element={<CalendarPage />} />
+            <Route path="minhas-reservas" element={<MyReservationsPage />} />
+          </Route>
+
           <Route path="/perfil" element={<ProfilePage />} />
+
           <Route element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboardPage />} />
@@ -33,10 +42,14 @@ export default function App() {
               <Route path="/admin/membros" element={<MembersPage />} />
             </Route>
           </Route>
+
+          {/* Deep links antigos: nao quebrar PWA instalado / favoritos */}
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/minhas-reservas" element={<Navigate to="/agenda/minhas-reservas" replace />} />
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   )
 }
