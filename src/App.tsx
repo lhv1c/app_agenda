@@ -5,11 +5,14 @@ import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import { RecoverPasswordPage } from './pages/RecoverPasswordPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
+import { HomePage } from './pages/HomePage'
+import { AgendaLayout } from './components/AgendaLayout'
 import { CalendarPage } from './pages/CalendarPage'
 import { MyReservationsPage } from './pages/MyReservationsPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { AdminHomePage } from './pages/admin/AdminHomePage'
+import { AdminAgendaLayout } from './components/AdminAgendaLayout'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
-import { AdminLayout } from './components/AdminLayout'
 import { RevenueReportPage } from './pages/admin/RevenueReportPage'
 import { MembersPage } from './pages/admin/MembersPage'
 
@@ -23,20 +26,38 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<CalendarPage />} />
-          <Route path="/minhas-reservas" element={<MyReservationsPage />} />
-          <Route path="/perfil" element={<ProfilePage />} />
-          <Route element={<AdminRoute />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<AdminDashboardPage />} />
-              <Route path="/admin/receita" element={<RevenueReportPage />} />
-              <Route path="/admin/membros" element={<MembersPage />} />
-            </Route>
+          <Route path="/home" element={<HomePage />} />
+
+          <Route path="/agenda" element={<AgendaLayout />}>
+            <Route index element={<Navigate to="/agenda/calendario" replace />} />
+            <Route path="calendario" element={<CalendarPage />} />
+            <Route path="minhas-reservas" element={<MyReservationsPage />} />
           </Route>
+
+          <Route path="/perfil" element={<ProfilePage />} />
+
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminHomePage />} />
+
+            <Route path="/admin/agenda" element={<AdminAgendaLayout />}>
+              <Route index element={<Navigate to="/admin/agenda/secretaria" replace />} />
+              <Route path="secretaria" element={<AdminDashboardPage />} />
+              <Route path="receita" element={<RevenueReportPage />} />
+            </Route>
+
+            <Route path="/admin/membros" element={<MembersPage />} />
+
+            {/* Deep link antigo da receita */}
+            <Route path="/admin/receita" element={<Navigate to="/admin/agenda/receita" replace />} />
+          </Route>
+
+          {/* Deep links antigos: nao quebrar PWA instalado / favoritos */}
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/minhas-reservas" element={<Navigate to="/agenda/minhas-reservas" replace />} />
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   )
 }

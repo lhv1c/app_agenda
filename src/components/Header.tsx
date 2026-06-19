@@ -7,12 +7,12 @@ export function Header() {
         <img src={logo} alt="Brasão da Loja" className="size-16 shrink-0" />
         <div className="flex flex-col justify-center">
           <p className="font-display text-2xl font-semibold leading-none text-granada">
-            Agenda do Salão
+            Ciência e Justiça
           </p>
           <p className="font-display text-lg leading-tight text-ouro">
-            Irmão Cristiano Cano
+            Loja Maçônica
           </p>
-          <p className="eyebrow mt-1 block">Ciência e Justiça · Marialva</p>
+          <p className="eyebrow mt-1 block">Oriente de Marialva</p>
         </div>
       </div>
       {/* Assinatura: piso mosaico da Loja. */}

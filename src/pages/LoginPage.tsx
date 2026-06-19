@@ -27,7 +27,7 @@ export function LoginPage() {
       setError('E-mail ou senha inválidos.')
       return
     }
-    navigate('/', { replace: true })
+    navigate('/home', { replace: true })
   }
 
   return (

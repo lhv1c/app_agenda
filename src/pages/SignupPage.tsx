@@ -76,7 +76,7 @@ export function SignupPage() {
       navigate('/login', { replace: true })
       return
     }
-    navigate('/', { replace: true })
+    navigate('/home', { replace: true })
   }
 
   return (
